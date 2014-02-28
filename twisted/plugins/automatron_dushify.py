@@ -5,6 +5,7 @@ from twisted.web.client import getPage
 from zope.interface import implements, classProvides
 from automatron.plugin import IAutomatronPluginFactory, STOP
 from automatron.client import IAutomatronMessageHandler
+import json
 
 
 DEFAULT_TRIGGER = '!dushi'
@@ -33,9 +34,17 @@ class DushifyPlugin(object):
         nickname = client.parse_user(user)[0]
 
         if message.startswith(trigger + ' '):
-            url = service + '?dushi=' + urllib.quote(message[len(trigger) + 1:].strip())
             try:
-                dushi = (yield getPage(url)).strip()
+                dushi = json.loads((yield getPage(
+                    service,
+                    method='POST',
+                    postdata=urllib.urlencode({
+                        'INPUT': message[len(trigger) + 1:].strip(),
+                    }),
+                    headers={
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                )).strip())['RESULT'].encode('utf-8')
                 client.msg(channel, '%s: %s' % (nickname, dushi))
             except Exception as e:
                 log.err(e, 'Dushify failed')
