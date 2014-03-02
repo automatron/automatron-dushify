@@ -45,8 +45,8 @@ class DushifyPlugin(object):
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                 )).strip())['RESULT'].encode('utf-8')
-                client.msg(channel, '%s: %s' % (nickname, dushi))
+                client.msg(user, '%s: %s' % (nickname, dushi))
             except Exception as e:
                 log.err(e, 'Dushify failed')
-                client.msg(channel, '%s: derp' % nickname)
+                client.msg(user, '%s: derp' % nickname)
             defer.returnValue(STOP)
