@@ -25,12 +25,12 @@ class DushifyPlugin(object):
     def __init__(self, controller):
         self.controller = controller
 
-    def on_message(self, client, user, channel, message):
-        self._on_message(client, user, channel, message)
+    def on_message(self, server, user, channel, message):
+        self._on_message(server, user, channel, message)
 
     @defer.inlineCallbacks
-    def _on_message(self, client, user, channel, message):
-        config = yield self.controller.config.get_plugin_section(self, client.server, channel)
+    def _on_message(self, server, user, channel, message):
+        config = yield self.controller.config.get_plugin_section(self, server['server'], channel)
 
         trigger = config.get('trigger', DEFAULT_TRIGGER)
         service = config.get('service', DEFAULT_SERVICE)
@@ -50,7 +50,7 @@ class DushifyPlugin(object):
                 )).strip())['RESULT'].encode('utf-8')
                 self.controller.plugins.emit(
                     IAutomatronClientActions['message'],
-                    client.server,
+                    server['server'],
                     channel,
                     '%s: %s' % (nickname, dushi)
                 )
@@ -58,7 +58,7 @@ class DushifyPlugin(object):
                 log.err(e, 'Dushify failed')
                 self.controller.plugins.emit(
                     IAutomatronClientActions['message'],
-                    client.server,
+                    server['server'],
                     channel,
                     '%s: derp' % nickname
                 )
