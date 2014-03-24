@@ -3,6 +3,7 @@ from twisted.internet import defer
 from twisted.python import log
 from twisted.web.client import getPage
 from zope.interface import implements, classProvides
+from automatron.controller.controller import IAutomatronClientActions
 from automatron.controller.plugin import IAutomatronPluginFactory
 from automatron.controller.client import IAutomatronMessageHandler
 import json
@@ -47,8 +48,18 @@ class DushifyPlugin(object):
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                 )).strip())['RESULT'].encode('utf-8')
-                client.msg(user, '%s: %s' % (nickname, dushi))
+                self.controller.plugins.emit(
+                    IAutomatronClientActions['message'],
+                    client.server,
+                    channel,
+                    '%s: %s' % (nickname, dushi)
+                )
             except Exception as e:
                 log.err(e, 'Dushify failed')
-                client.msg(user, '%s: derp' % nickname)
+                self.controller.plugins.emit(
+                    IAutomatronClientActions['message'],
+                    client.server,
+                    channel,
+                    '%s: derp' % nickname
+                )
             defer.returnValue(STOP)
