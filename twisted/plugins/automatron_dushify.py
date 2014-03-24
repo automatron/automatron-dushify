@@ -7,6 +7,7 @@ from automatron.controller.plugin import IAutomatronPluginFactory
 from automatron.controller.client import IAutomatronMessageHandler
 import json
 from automatron.core.event import STOP
+from automatron.core.util import parse_user
 
 
 DEFAULT_TRIGGER = '!dushi'
@@ -32,7 +33,7 @@ class DushifyPlugin(object):
 
         trigger = config.get('trigger', DEFAULT_TRIGGER)
         service = config.get('service', DEFAULT_SERVICE)
-        nickname = client.parse_user(user)[0]
+        nickname = parse_user(user)[0]
 
         if message.startswith(trigger + ' '):
             try:
